@@ -8,11 +8,6 @@ import time
 urllib3.disable_warnings()
 requests.packages.urllib3.disable_warnings()
 # 注册时间1-5年，注册资金10000万以上。
-"""
-location  
-510104锦江区 510105青羊区  510106金牛区  510107武侯区  510108成华区  510112龙泉驿区 510113青白江区 510114新都区 510115温江区
-510116双流区 510117郫都区  510121金堂县  510129大邑县  510131浦江县  510132新津县  510181都江堰市  510182彭州市  510183邛崃市
-"""
 
 # 连接数据库
 engine = create_engine(
@@ -23,12 +18,12 @@ def insert_sql(data):
     # 使用try...except..continue避免出现错误，运行崩溃
     try:
         # jjcc_data 数据库表名
-        data.to_sql("gsxx_data2", engine, if_exists='append', chunksize=1000)
+        data.to_sql("gsxx_data2", engine, if_exists='append')
     except Exception as e:
         print(e)
 
 
-def get_data(address, page):
+def get_data(zb,address, page):
     try:
         url = "https://clues.cn/api/opensearch/search"
         heads = {
@@ -52,7 +47,7 @@ def get_data(address, page):
 
         data = {
             "keyword": "",
-            "filter": '{"location":["%s"],"industryshort":[],"registercapital":"4","establishment":"2","entstatus":"1","enttype":"1","contact":["1001"],"finance":[],"trademark":"0","patent":"0","shixin":"0","tenders":"0","mobileApp":"0","sem":"0","scale":"0","website":"0","employment":"0"}' % address,
+            "filter": '{"location":["%s"],"industryshort":[],"registercapital":"%s","establishment":"2","entstatus":"1","enttype":"1","contact":["1001"],"finance":[],"trademark":"0","patent":"0","shixin":"0","tenders":"0","mobileApp":"0","sem":"0","scale":"0","website":"0","employment":"0"}' % (address,zb),
             "scope": "",
             "sortType": "0",
             "pagesize": "50",
@@ -69,14 +64,23 @@ def get_data(address, page):
     except Exception as e:
         print(e)
 
+"""
+location  
+510104锦江区 510105青羊区  510106金牛区  510107武侯区  510108成华区  510112龙泉驿区 510113青白江区 510114新都区 510115温江区
+510116双流区 510117郫都区  510121金堂县  510129大邑县  510131浦江县  510132新津县  510181都江堰市  510182彭州市  510183邛崃市
+区域代码
+"""
+
 
 if __name__ == '__main__':
     list = ["510104", "510105", "510106", "510107", "510108", "510112", "510113", "510114","510115",
             "510116", "510117", "510121", "510129", "510131", "510132", "510181", "510182", "510183"]
-    for x in list:
+    for zb in range(1,5):
         time.sleep(120)
-        for i in range(101):
-            get_data(x,i)
-            print("正在写入%s第%s页"% (x,i))
+        for address in list:
+            time.sleep(120)
+            for page in range(101):
+                get_data(zb,address,page)
+                print("正在写入注册资金%s，区域%s第%s页"% (zb,address,page))
 
 
